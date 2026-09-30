@@ -169,7 +169,10 @@ REQUIRED_TABLES = frozenset({
 def connect(path: str | Path) -> sqlite3.Connection:
     """打开连接并启用严格的事务与外键设置。"""
 
-    connection = sqlite3.connect(str(path), isolation_level=None)
+    # ThreadingHTTPServer 会在工作线程中复用该连接；写入统一走 BEGIN IMMEDIATE
+    # 并由 busy_timeout 串行化，因此关闭同线程限制是安全的。
+    connection = sqlite3.connect(str(path), isolation_level=None,
+                                 check_same_thread=False)
     connection.row_factory = sqlite3.Row
     connection.execute("PRAGMA foreign_keys = ON")
     connection.execute("PRAGMA busy_timeout = 5000")

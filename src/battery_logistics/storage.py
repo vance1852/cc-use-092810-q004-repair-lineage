@@ -198,7 +198,10 @@ ON supply_audit_events(entity_type, entity_id, event_id);
 
 
 def connect(path: str | Path) -> sqlite3.Connection:
-    connection = sqlite3.connect(str(path), isolation_level=None, timeout=10)
+    # ThreadingHTTPServer 会在工作线程中复用该连接；写入统一走 BEGIN IMMEDIATE
+    # 并由 busy_timeout 串行化，因此关闭同线程限制是安全的。
+    connection = sqlite3.connect(str(path), isolation_level=None, timeout=10,
+                                 check_same_thread=False)
     connection.row_factory = sqlite3.Row
     connection.execute("PRAGMA foreign_keys=ON")
     connection.execute("PRAGMA journal_mode=WAL")
