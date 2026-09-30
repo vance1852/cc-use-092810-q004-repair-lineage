@@ -7,6 +7,7 @@
 - `src/battery_logistics/`：储能场站、调拨走廊、资产批次、容量申请、分配与处置情景；
 - `src/battery_assurance/`：电池资产、证据版本、评估协议、观测导入、排除复核、分析任务与准入决定；
 - `src/component_quality/`：电芯组件批次、响应测量、统计分析、账号权限和质量审批；
+- `src/refurb_lineage/`：维修与翻新谱系，工单冻结进场配置与故障证据、拆解处置（复用/维修/报废/隔离）、引用确定版本检测与维修动作的组包、技术确认与质量放行分离、双向谱系追溯；
 - `fixtures/`：离线验收使用的评估协议与结构化观测；
 - `tests/`：领域规则、错误边界、事务、权限、HTTP API 和命令行验收测试。
 
@@ -34,9 +35,10 @@ python3 -m compileall -q src tests
 PYTHONPATH=src python3 -m battery_logistics.acceptance --workspace .
 PYTHONPATH=src python3 -m battery_assurance.acceptance --workspace .
 PYTHONPATH=src python3 -m component_quality.acceptance
+PYTHONPATH=src python3 -m refurb_lineage.acceptance --workspace .
 ```
 
-三条命令会在临时 SQLite 数据库中完成资产调拨、状态评估和组件质量流程，不访问外部网络。
+四条命令会在临时 SQLite 数据库中完成资产调拨、状态评估、组件质量和维修翻新谱系流程，不访问外部网络。
 
 ## HTTP 服务
 
@@ -44,6 +46,7 @@ PYTHONPATH=src python3 -m component_quality.acceptance
 PYTHONPATH=src python3 -m battery_logistics.api --database battery-logistics.sqlite3 --host 127.0.0.1 --port 8080
 PYTHONPATH=src python3 -m battery_assurance.api --database battery-assurance.sqlite3 --host 127.0.0.1 --port 8081
 PYTHONPATH=src python3 -m component_quality.api --database component-quality.sqlite3 --host 127.0.0.1 --port 8082
+PYTHONPATH=src python3 -m refurb_lineage.api --database refurb-lineage.sqlite3 --host 127.0.0.1 --port 8083
 ```
 
 服务提供 JSON 接口与健康检查。进程重启后可以继续读取 SQLite 中的业务状态和审计历史。
